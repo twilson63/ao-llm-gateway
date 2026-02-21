@@ -1,5 +1,6 @@
 """Admin router for AO LLM Gateway."""
 import uuid
+from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response
@@ -13,8 +14,9 @@ from src.database import get_db
 from src.models import AccessKey, Provider, ProviderModel
 from src.utils.encryption import encrypt_api_key as encrypt_key
 
-# Initialize templates
-templates = Jinja2Templates(directory="src/admin/templates")
+# Initialize templates - use absolute path
+BASE_DIR = Path(__file__).resolve().parent.parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "admin" / "templates"))
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 

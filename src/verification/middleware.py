@@ -291,6 +291,7 @@ class HyperBeamIdentityMiddleware(BaseHTTPMiddleware):
         "/openapi.json",
         "/admin",
         "/admin/login",
+        "/login",
         "/auth",
     }
     

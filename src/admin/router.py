@@ -366,23 +366,26 @@ async def list_providers(
     db: Session = Depends(get_db)
 ):
     """Render providers list with optional filtering."""
-    query = db.query(Provider)
-    
-    # Apply search filter
-    if search:
-        search_term = f"%{search}%"
-        query = query.filter(
-            (Provider.name.ilike(search_term)) |
-            (Provider.display_name.ilike(search_term))
-        )
-    
-    # Apply status filter
-    if filter_provider_enabled == "true":
-        query = query.filter(Provider.is_enabled == True)
-    elif filter_provider_enabled == "false":
-        query = query.filter(Provider.is_enabled == False)
-    
-    providers = query.order_by(Provider.created_at.desc()).all()
+    try:
+        query = db.query(Provider)
+        
+        # Apply search filter
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                (Provider.name.ilike(search_term)) |
+                (Provider.display_name.ilike(search_term))
+            )
+        
+        # Apply status filter
+        if filter_provider_enabled == "true":
+            query = query.filter(Provider.is_enabled == True)
+        elif filter_provider_enabled == "false":
+            query = query.filter(Provider.is_enabled == False)
+        
+        providers = query.order_by(Provider.created_at.desc()).all()
+    except Exception as e:
+        providers = []
     
     return templates.TemplateResponse("providers.html", {
         "request": request,

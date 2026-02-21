@@ -14,8 +14,10 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy the entire application
+COPY . .
+
 # Copy startup script BEFORE creating user (so permissions work)
-COPY start.sh .
 RUN chmod +x start.sh
 
 # Create non-root user

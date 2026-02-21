@@ -22,10 +22,10 @@ wheels/
 
 # Virtual environments
 venv/
-env/
 ENV/
+env/
 
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
@@ -36,17 +36,20 @@ ENV/
 .coverage
 htmlcov/
 
-# Local data
+# Data (except for Docker volume mounting)
 data/
 *.db
-*.db-journal
+*.mdb
 
-# Environment
-.env
-.env.local
-
-# Docker
-.dockerignore
+# Git
+.git/
+.gitignore
 
 # Documentation
-docs/_build/
+*.md
+!README.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore

@@ -13,7 +13,7 @@ services:
       - key: ADMIN_EMAIL
         value: admin@example.com
       - key: ADMIN_PASSWORD
-        value: admin
+        value: "$2b$12$nAFQhLpXGdw./QjwLBAgmud/lXIc5oNb7DNXdIxWWL4NY8BA/msyW"
       - key: SECRET_KEY
         generateValue: true
       - key: ENCRYPTION_KEY

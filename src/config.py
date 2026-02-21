@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     
     # Admin Configuration
     admin_email: str = "admin@example.com"
-    admin_password: str = "$2b$12$T9wq/nWwEr51F80QclO1guB2rSIU8EpkWago4mp7DWF0nhUMJnxJa"  # Default: "admin"
+    admin_password: str = ""  # Set via ADMIN_PASSWORD env var - REQUIRED
     secret_key: str = "change-me-in-production"
     
     # Database
@@ -54,6 +54,7 @@ class Settings(BaseSettings):
         # Check if default values are still in use
         return (
             self.secret_key != "change-me-in-production" and
+            self.admin_password != "" and
             self.admin_password != "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIbXn8U7dy"
         )
 

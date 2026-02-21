@@ -92,29 +92,34 @@ async def dashboard(
 ):
     """Render dashboard page with stats."""
     # Get stats
-    total_keys = db.query(AccessKey).count()
-    active_keys = db.query(AccessKey).filter(AccessKey.is_enabled == True).count()
-    total_providers = db.query(Provider).count()
-    enabled_providers = db.query(Provider).filter(Provider.is_enabled == True).count()
-    
-    # Get recent keys - convert to dicts to avoid SQLAlchemy template issues
-    recent_keys_raw = db.query(AccessKey).order_by(AccessKey.created_at.desc()).limit(5).all()
-    recent_keys = []
-    for k in recent_keys_raw:
-        recent_keys.append({
-            "key_id": k.key_id[:8] if k.key_id else "",
-            "authority": k.authority,
-            "process_id": k.process_id,
-            "is_enabled": k.is_enabled,
-            "created_at": k.created_at.strftime('%Y-%m-%d') if k.created_at else ""
-        })
-    
-    stats = {
-        "total_keys": total_keys,
-        "active_keys": active_keys,
-        "total_providers": total_providers,
-        "enabled_providers": enabled_providers
-    }
+    try:
+        total_keys = db.query(AccessKey).count()
+        active_keys = db.query(AccessKey).filter(AccessKey.is_enabled == True).count()
+        total_providers = db.query(Provider).count()
+        enabled_providers = db.query(Provider).filter(Provider.is_enabled == True).count()
+        
+        # Get recent keys - convert to dicts to avoid SQLAlchemy template issues
+        recent_keys_raw = db.query(AccessKey).order_by(AccessKey.created_at.desc()).limit(5).all()
+        recent_keys = []
+        for k in recent_keys_raw:
+            recent_keys.append({
+                "key_id": str(k.key_id)[:8] if k.key_id else "",
+                "authority": k.authority,
+                "process_id": k.process_id,
+                "is_enabled": k.is_enabled,
+                "created_at": k.created_at.strftime('%Y-%m-%d') if k.created_at else ""
+            })
+        
+        stats = {
+            "total_keys": total_keys,
+            "active_keys": active_keys,
+            "total_providers": total_providers,
+            "enabled_providers": enabled_providers
+        }
+    except Exception as e:
+        # Fallback if DB queries fail
+        stats = {"total_keys": 0, "active_keys": 0, "total_providers": 0, "enabled_providers": 0}
+        recent_keys = []
     
     return templates.TemplateResponse("dashboard.html", {
         "request": request,

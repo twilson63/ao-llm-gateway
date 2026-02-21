@@ -12,10 +12,8 @@ services:
         value: ./data/ratelimit.db
       - key: ADMIN_EMAIL
         value: admin@example.com
-        sync: false
       - key: ADMIN_PASSWORD
         value: admin
-        sync: false
       - key: SECRET_KEY
         generateValue: true
       - key: ENCRYPTION_KEY

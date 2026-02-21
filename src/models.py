@@ -58,11 +58,11 @@ class Provider(Base):
     name = Column(String(100), nullable=False, unique=True, index=True)
     display_name = Column(String(255), nullable=False)
     base_url = Column(String(500), nullable=False)
-    api_key_encrypted = Column(Text, nullable=True)  # Encrypted API key storage
+    encrypted_api_key = Column(Text, nullable=True)  # Encrypted API key storage
     default_headers = Column(Text, nullable=True)  # JSON string for additional headers
     
     # New fields for flexible endpoint configuration
-    endpoint_path = Column(String(200), nullable=False, default="/v1/chat/completions")
+    endpoint_url = Column(String(500), nullable=False, default="/v1/chat/completions")
     auth_type = Column(String(20), nullable=False, default="bearer")  # "bearer", "header", "query_param"
     auth_header_name = Column(String(50), nullable=True)  # Custom header name for "header" auth
     header_mapping = Column(Text, nullable=True)  # JSON string for header mapping

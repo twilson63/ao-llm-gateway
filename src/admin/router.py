@@ -384,7 +384,7 @@ async def create_provider(
     name: str = Form(...),
     display_name: str = Form(...),
     base_url: str = Form(...),
-    endpoint_path: str = Form("/v1/chat/completions"),
+    endpoint_url: str = Form("/v1/chat/completions"),
     auth_type: str = Form("bearer"),
     auth_header_name: Optional[str] = Form(None),
     api_key: Optional[str] = Form(None),
@@ -413,10 +413,10 @@ async def create_provider(
         name=name,
         display_name=display_name,
         base_url=base_url,
-        endpoint_path=endpoint_path,
+        endpoint_url=endpoint_url,
         auth_type=auth_type,
         auth_header_name=auth_header_name,
-        api_key_encrypted=encrypted_api_key,
+        encrypted_api_key=encrypted_api_key,
         timeout_seconds=timeout_seconds,
         retry_count=retry_count,
         default_headers=default_headers,
@@ -477,7 +477,7 @@ async def edit_provider_form(
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Endpoint Path</label>
-                        <input type="text" name="endpoint_path" value="{provider.endpoint_path or '/v1/chat/completions'}" 
+                        <input type="text" name="endpoint_url" value="{provider.endpoint_url or '/v1/chat/completions'}" 
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
                     </div>
                 </div>
@@ -539,6 +539,11 @@ async def edit_provider_form(
                     </div>
                     <div class="flex space-x-2">
                         <button type="submit" class="px-3 py-1 bg-purple-600 text-white rounded text-sm">Save</button>
+                        <button type="button"
+                                hx-post="/admin/providers/{provider.id}/test"
+                                hx-target="#edit-test-result-{provider.id}"
+                                hx-swap="innerHTML"
+                                class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Test</button>
                         <button type="button" 
                                 hx-get="/admin/providers/{provider.id}/cancel-edit"
                                 hx-target="#provider-row-{provider.id}"
@@ -546,6 +551,7 @@ async def edit_provider_form(
                                 class="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm">Cancel</button>
                     </div>
                 </div>
+                <div id="edit-test-result-{provider.id}" class="mt-2 text-sm"></div>
             </form>
         </td>
     </tr>
@@ -579,7 +585,7 @@ async def update_provider(
     name: str = Form(...),
     display_name: str = Form(...),
     base_url: str = Form(...),
-    endpoint_path: str = Form("/v1/chat/completions"),
+    endpoint_url: str = Form("/v1/chat/completions"),
     auth_type: str = Form("bearer"),
     auth_header_name: Optional[str] = Form(None),
     api_key: Optional[str] = Form(None),
@@ -607,7 +613,7 @@ async def update_provider(
     provider.name = name
     provider.display_name = display_name
     provider.base_url = base_url
-    provider.endpoint_path = endpoint_path
+    provider.endpoint_url = endpoint_url
     provider.auth_type = auth_type
     provider.auth_header_name = auth_header_name
     provider.timeout_seconds = timeout_seconds
@@ -619,7 +625,7 @@ async def update_provider(
     
     # Update API key if provided
     if api_key:
-        provider.api_key_encrypted = encrypt_key(api_key)
+        provider.encrypted_api_key = encrypt_key(api_key)
     
     db.commit()
     db.refresh(provider)
@@ -691,8 +697,8 @@ async def test_provider(
     # Get decrypted API key
     from src.utils.encryption import decrypt_api_key
     api_key = None
-    if provider.api_key_encrypted:
-        api_key = decrypt_api_key(provider.api_key_encrypted)
+    if provider.encrypted_api_key:
+        api_key = decrypt_api_key(provider.encrypted_api_key)
     
     if not api_key:
         return JSONResponse(
@@ -717,7 +723,7 @@ async def test_provider(
         pass  # Will add as query param below
     
     # Build the URL
-    url = provider.base_url.rstrip('/') + (provider.endpoint_path or '/v1/chat/completions')
+    url = provider.base_url.rstrip('/') + (provider.endpoint_url or '/v1/chat/completions')
     
     if provider.auth_type == "query_param":
         separator = '&' if '?' in url else '?'

@@ -181,6 +181,7 @@ class ProviderBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     display_name: str = Field(..., min_length=1, max_length=255)
     base_url: str = Field(..., min_length=1, max_length=500)
+    endpoint_url: Optional[str] = Field(None, description="Full URL to provider API (alternative to base_url + endpoint_path)")
     is_enabled: bool = True
 
 
@@ -336,6 +337,7 @@ class ProviderResponse(ProviderBase):
     api_key_masked: Optional[str] = None
     default_headers: Optional[Dict[str, str]] = None
     endpoint_path: str
+    endpoint_url: Optional[str] = Field(None, description="Full URL to provider API (alternative to base_url + endpoint_path)")
     auth_type: str
     auth_header_name: Optional[str] = None
     header_mapping: Optional[Dict[str, str]] = None
@@ -369,6 +371,7 @@ class ProviderListResponse(BaseModel):
     name: str
     display_name: str
     base_url: str
+    endpoint_url: Optional[str] = None
     is_enabled: bool
     auth_type: str
 

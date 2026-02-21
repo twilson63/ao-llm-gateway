@@ -290,7 +290,7 @@
                             {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {% if provider.api_key_encrypted %}
+                            {% if provider.encrypted_api_key %}
                             <span class="text-green-600">••••••••</span>
                             {% else %}
                             <span class="text-gray-400">Not set</span>
@@ -308,6 +308,13 @@
                             {{ provider.models|length }} models
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            <button hx-post="/admin/providers/{{ provider.id }}/test"
+                                    hx-target="#test-result-{{ provider.id }}"
+                                    hx-swap="innerHTML"
+                                    hx-on::after-request="if(event.detail.successful) { document.getElementById('test-result-{{ provider.id }}').classList.remove('hidden'); }"
+                                    class="text-blue-600 hover:text-blue-900 mr-3">
+                                Test
+                            </button>
                             <button hx-get="/admin/providers/{{ provider.id }}/edit"
                                     hx-target="#edit-provider-modal-{{ provider.id }}"
                                     hx-swap="innerHTML"
@@ -323,8 +330,9 @@
                             </button>
                         </td>
                     </tr>
-                    <!-- Edit Modal Container -->
-                    <tr id="edit-provider-modal-{{ provider.id }}"></tr>
+                    <!-- Test Result Row -->
+                    <tr id="test-result-{{ provider.id }}" class="hidden">
+                        <td colspan="7" class="px-6 py-2 bg-blue-50"></tr>
                     {% endfor %}
                 </tbody>
             </table>

@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
@@ -87,18 +87,10 @@ async def readiness_check():
     )
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    """Root endpoint with basic service info."""
-    return JSONResponse(
-        status_code=200,
-        content={
-            "service": "AO LLM Gateway",
-            "version": "1.0.0",
-            "docs": "/docs",
-            "admin": "/admin/dashboard"
-        }
-    )
+    """Root endpoint with landing page."""
+    return templates.TemplateResponse("landing.html", {"request": request})
 
 
 # Include routers

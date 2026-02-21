@@ -90,29 +90,11 @@ async def dashboard(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Render dashboard page with stats."""
-    # Get stats
-    total_keys = db.query(AccessKey).count()
-    active_keys = db.query(AccessKey).filter(AccessKey.is_enabled == True).count()
-    total_providers = db.query(Provider).count()
-    enabled_providers = db.query(Provider).filter(Provider.is_enabled == True).count()
-    
-    # Get recent keys
-    recent_keys = db.query(AccessKey).order_by(AccessKey.created_at.desc()).limit(5).all()
-    
-    stats = {
-        "total_keys": total_keys,
-        "active_keys": active_keys,
-        "total_providers": total_providers,
-        "enabled_providers": enabled_providers
-    }
-    
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
-        "current_user": current_user,
-        "stats": stats,
-        "recent_keys": recent_keys
-    })
+    """Render dashboard page with stats. Redirects to keys for now."""
+    # TODO: Fix dashboard - currently experiencing template issues
+    # For now, redirect to keys page
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/admin/keys", status_code=302)
 
 
 # ==================== Access Keys ====================

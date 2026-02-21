@@ -1,520 +1,191 @@
 {% extends "base.html" %}
-
-{% block title %}Login - AO LLM Gateway Admin{% endblock %}
-
-{% block extra_head %}
-<style>
-/* Background gradient matching landing page style */
-.login-page-bg {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: system-ui, -apple-system, sans-serif;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Subtle animated pixel background */
-.login-page-bg::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-        radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
-    animation: float 20s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(-10px, -10px); }
-}
-
-/* Card entrance animation */
-@keyframes cardEnter {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.login-card {
-    background: white;
-    border-radius: 16px;
-    padding: 48px 40px;
-    box-shadow: 
-        0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 2px 4px -1px rgba(0, 0, 0, 0.06),
-        0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    animation: cardEnter 0.6s ease-out;
-    position: relative;
-    z-index: 1;
-}
-
-/* Logo styling */
-.logo-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 24px;
-}
-
-.logo-icon {
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.logo-pixel {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-    border-radius: 10px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 2px;
-    padding: 4px;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.logo-pixel span {
-    background: white;
-    border-radius: 2px;
-}
-
-.logo-pixel span:nth-child(1),
-.logo-pixel span:nth-child(4),
-.logo-pixel span:nth-child(6),
-.logo-pixel span:nth-child(7),
-.logo-pixel span:nth-child(10),
-.logo-pixel span:nth-child(11),
-.logo-pixel span:nth-child(13),
-.logo-pixel span:nth-child(16) {
-    background: rgba(255, 255, 255, 0.9);
-}
-
-/* Title styling */
-.login-title {
-    text-align: center;
-    margin-bottom: 8px;
-}
-
-.login-title h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0;
-}
-
-.login-subtitle {
-    text-align: center;
-    color: #64748b;
-    font-size: 14px;
-    margin-bottom: 32px;
-}
-
-/* Form styling */
-.login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.form-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
-}
-
-.form-control {
-    width: 100%;
-    padding: 14px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 16px;
-    transition: all 0.2s ease;
-    background: #f8fafc;
-    color: #1e293b;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-    background: white;
-}
-
-.form-control::placeholder {
-    color: #94a3b8;
-}
-
-/* Password wrapper */
-.password-wrapper {
-    position: relative;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-    font-size: 18px;
-    padding: 4px;
-}
-
-.toggle-password:hover {
-    opacity: 0.8;
-}
-
-/* Submit button */
-.btn-submit {
-    width: 100%;
-    padding: 14px 24px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 8px;
-}
-
-.btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-}
-
-.btn-submit:active {
-    transform: translateY(0);
-}
-
-.btn-submit:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* Loading spinner */
-.spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.hidden {
-    display: none !important;
-}
-
-/* Remember me & forgot password row */
-.form-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 4px;
-}
-
-.remember-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.remember-wrapper input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: #3b82f6;
-    cursor: pointer;
-}
-
-.remember-wrapper label {
-    font-size: 14px;
-    color: #64748b;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.forgot-password {
-    font-size: 14px;
-}
-
-.forgot-password a {
-    color: #3b82f6;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.forgot-password a:hover {
-    color: #2563eb;
-    text-decoration: underline;
-}
-
-/* Error message */
-.error-message {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #dc2626;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    text-align: center;
-    margin-bottom: 16px;
-}
-
-/* Shake animation for errors */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
-    20%, 40%, 60%, 80% { transform: translateX(6px); }
-}
-
-.shake {
-    animation: shake 0.5s ease-in-out;
-}
-
-/* Success animation */
-@keyframes fadeOutSuccess {
-    to {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-}
-
-.success-fade {
-    animation: fadeOutSuccess 0.5s ease forwards;
-}
-
-/* Back link */
-.back-link {
-    text-align: center;
-    margin-top: 24px;
-}
-
-.back-link a {
-    color: #64748b;
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.2s;
-}
-
-.back-link a:hover {
-    color: #3b82f6;
-}
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="login-page-bg">
-    <div class="login-card" id="loginCard">
+<div class="login-container"
+>
+    <div class="login-card" id="loginCard"
+>        
         <!-- Logo -->
-        <div class="logo-container">
-            <div class="logo-icon">
-                <div class="logo-pixel">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
+        <div class="logo" style="text-align: center; margin-bottom: 24px;">
+            <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <rect fill="#6366f1" x="16" y="16" width="8" height="8"/>
+                <rect fill="#6366f1" x="28" y="16" width="8" height="8"/>
+                <rect fill="#6366f1" x="40" y="16" width="8" height="8"/>
+                <rect fill="#3b82f6" x="16" y="28" width="8" height="8"/>
+                <rect fill="#3b82f6" x="28" y="28" width="8" height="8"/>
+                <rect fill="#3b82f6" x="40" y="28" width="8" height="8"/>
+                <rect fill="#60a5fa" x="16" y="40" width="8" height="8"/>
+                <rect fill="#60a5fa" x="28" y="40" width="8" height="8"/>
+                <rect fill="#60a5fa" x="40" y="40" width="8" height="8"/>
+            </svg>
         </div>
         
         <!-- Title -->
-        <div class="login-title">
-            <h1>AO LLM Gateway</h1>
-        </div>
-        <p class="login-subtitle">Admin Access</p>
+        <h1 style="text-align: center; font-size: 24px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">AO LLM Gateway</h1>
+        <p class="subtitle" style="text-align: center; color: #64748b; margin-bottom: 32px;">Admin Access</p>
         
         <!-- Error Message -->
-        {% if error %}
-        <div class="error-message shake" id="errorMessage">
-            {{ error }}
+        <div id="error-message" class="error-container" style="display: none; margin-bottom: 16px;">
+            <div class="error-box" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px; border-radius: 8px; font-size: 14px;">
+                <span id="error-text"></span>
+            </div>
         </div>
-        {% endif %}
         
-        <!-- Login Form -->
-        <form 
-            id="loginForm" 
-            action="/admin/login" 
-            method="post" 
-            class="login-form"
-            hx-post="/auth/login"
-            hx-swap="outerHTML"
-            hx-target="#message"
-        >
-            <!-- Email -->
-            <div class="form-group">
-                <label for="email" class="form-label">Email</label>
+        <!-- Form -->
+        <form id="loginForm" method="post" action="/auth/login">            
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Email</label>
                 <input 
                     type="email" 
-                    id="email" 
                     name="email" 
-                    placeholder="you@example.com"
+                    id="email"
+                    placeholder="admin@example.com"
                     required
                     class="form-control"
-                    autocomplete="email"
-                    aria-label="Email address"
+                    style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;"
+                    onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)';"
+                    onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
                 />
             </div>
             
-            <!-- Password -->
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <div class="password-wrapper">
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Password</label>
+                <div class="password-wrapper" style="position: relative;">
                     <input 
                         type="password" 
-                        id="password" 
                         name="password" 
-                        placeholder="Enter your password"
+                        id="password"
+                        placeholder=""
                         required
                         class="form-control"
-                        autocomplete="current-password"
-                        aria-label="Password"
+                        style="width: 100%; padding: 12px; padding-right: 40px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)';"
+                        onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
                     />
-                    <button 
-                        type="button" 
-                        class="toggle-password" 
-                        onclick="togglePassword()"
-                        aria-label="Toggle password visibility"
-                    >
+                    <button type="button" onclick="togglePassword()" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.6;">
                         👁️
                     </button>
                 </div>
             </div>
             
             <!-- Submit -->
-            <button type="submit" class="btn-submit" id="submitBtn">
-                <span class="btn-text">Sign In</span>
-                <span class="spinner hidden" id="spinner">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 31.4"/>
+            <button type="submit" class="btn-submit" id="submitBtn"
+                style="width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
+            >
+                <span id="btnText">Sign In</span>
+                <span id="spinner" style="display: none; margin-left: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <style>.spinner{animation:spin 1s linear infinite}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
+                        <circle class="spinner" cx="12" cy="12" r="10"/>
                     </svg>
                 </span>
             </button>
             
-            <!-- Remember Me & Forgot Password -->
-            <div class="form-footer">
-                <div class="remember-wrapper">
-                    <input type="checkbox" id="remember" name="remember" value="1" />
-                    <label for="remember">Remember me</label>
-                </div>
-                <div class="forgot-password">
-                    <a href="#" onclick="alert('Contact admin to reset password'); return false;">
-                        Forgot password?
-                    </a>
-                </div>
-            </div>
         </form>
         
-        <!-- Message container for HTMX -->
-        <div id="message" class="message-container"></div>
-        
-        <!-- Back link -->
-        <div class="back-link">
-            <a href="/">← Back to Home</a>
+        <div style="margin-top: 16px; text-align: center;">
+            <a href="/" style="color: #6b7280; font-size: 14px; text-decoration: none;">← Back to landing page</a>
         </div>
     </div>
 </div>
 
+<style>
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    @keyframes cardEnter {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    #loginCard {
+        animation: cardEnter 0.6s ease-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+    
+    .shake {
+        animation: shake 0.5s ease-in-out;
+    }
+</style>
+
 <script>
-    // Password visibility toggle
+    // Toggle password visibility
     function togglePassword() {
         const input = document.getElementById('password');
-        const btn = document.querySelector('.toggle-password');
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            btn.textContent = '🔒';
-        } else {
-            input.type = 'password';
-            btn.textContent = '👁️';
-        }
+        input.type = input.type === 'password' ? 'text' : 'password';
     }
     
-    // Show loading on submit
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        // If using HTMX, let it handle the loading
-        if (typeof htmx !== 'undefined') {
-            return;
-        }
+    // Handle form submission with fetch
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        // Traditional form submission
         const btn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
         const spinner = document.getElementById('spinner');
-        const btnText = document.querySelector('.btn-text');
+        const errorContainer = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
         
-        btn.disabled = true;
+        // Hide any previous error
+        errorContainer.style.display = 'none';
+        
+        // Show loading state
         btnText.textContent = 'Signing in...';
-        spinner.classList.remove('hidden');
-    });
-    
-    // Handle HTMX response for errors
-    document.addEventListener('htmx:afterSwap', function(event) {
-        const messageDiv = document.getElementById('message');
-        if (messageDiv && messageDiv.innerHTML.includes('error')) {
-            const card = document.getElementById('loginCard');
-            card.classList.add('shake');
-            setTimeout(() => card.classList.remove('shake'), 500);
+        spinner.style.display = 'inline-block';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        
+        try {
+            const formData = new FormData(this);
+            
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+            
+            if (response.ok) {
+                // Success - redirect to admin
+                window.location.href = '/admin/dashboard';
+            } else {
+                // Error - show message
+                const data = await response.json();
+                errorText.textContent = data.detail || 'Invalid credentials';
+                errorContainer.style.display = 'block';
+                
+                // Shake animation
+                document.getElementById('loginCard').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('loginCard').classList.remove('shake');
+                }, 500);
+            }
+        } catch (error) {
+            errorText.textContent = 'Network error. Please try again.';
+            errorContainer.style.display = 'block';
+        } finally {
+            // Reset button
+            btnText.textContent = 'Sign In';
+            spinner.style.display = 'none';
+            btn.disabled = false;
+            btn.style.opacity = '1';
         }
     });
-    
-    // Remove shake class after animation
-    const errorMessage = document.getElementById('errorMessage');
-    if (errorMessage) {
-        setTimeout(() => {
-            errorMessage.classList.remove('shake');
-        }, 500);
-    }
 </script>
+
 {% endblock %}

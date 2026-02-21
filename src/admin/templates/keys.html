@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Access Keys - AO LLM Gateway Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Access Keys</h1>
+    </div>
+
+    <!-- Create Key Form -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Create New Access Key</h2>
+        <form hx-post="/admin/keys" 
+              hx-target="#keys-list" 
+              hx-swap="afterbegin"
+              hx-on::after-request="if (event.detail.successful) this.reset()"
+              class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="authority" class="block text-sm font-medium text-gray-700">Authority (optional)</label>
+                    <input type="text" 
+                           id="authority" 
+                           name="authority"
+                           placeholder="HyperBEAM address or domain"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="process_id" class="block text-sm font-medium text-gray-700">Process ID (optional)</label>
+                    <input type="text" 
+                           id="process_id" 
+                           name="process_id"
+                           placeholder="AO process ID for routing"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" 
+                       id="is_enabled" 
+                       name="is_enabled" 
+                       checked
+                       class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="is_enabled" class="ml-2 block text-sm text-gray-700">Enable immediately</label>
+            </div>
+            <button type="submit" 
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Create Key
+            </button>
+        </form>
+    </div>
+
+    <!-- Search/Filter -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <div class="flex items-center space-x-4">
+            <div class="flex-1">
+                <input type="text" 
+                       id="search-keys"
+                       hx-get="/admin/keys"
+                       hx-trigger="keyup changed delay:300ms"
+                       hx-target="#keys-list"
+                       hx-include="[name='filter_enabled']"
+                       name="search"
+                       placeholder="Search by key ID, authority, or process ID..."
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <select name="filter_enabled" 
+                    id="filter-enabled"
+                    hx-get="/admin/keys"
+                    hx-trigger="change"
+                    hx-target="#keys-list"
+                    hx-include="[name='search']"
+                    class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">All Status</option>
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Keys List -->
+    <div id="keys-list" class="bg-white shadow rounded-lg overflow-hidden">
+        {% if keys %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Authority</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Process ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="keys-tbody">
+                    {% for key in keys %}
+                    <tr id="key-row-{{ key.id }}" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm font-mono text-gray-900">{{ key.key_id[:12] }}...</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ key.authority or '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ key.process_id or '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button hx-patch="/admin/keys/{{ key.id }}/toggle"
+                                    hx-target="#key-row-{{ key.id }}"
+                                    hx-swap="outerHTML"
+                                    class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full cursor-pointer {% if key.is_enabled %}bg-green-100 text-green-800 hover:bg-green-200{% else %}bg-gray-100 text-gray-800 hover:bg-gray-200{% endif %}">
+                                {% if key.is_enabled %}Enabled{% else %}Disabled{% endif %}
+                            </button>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ key.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            <button hx-get="/admin/keys/{{ key.id }}/edit"
+                                    hx-target="#edit-modal-{{ key.id }}"
+                                    hx-swap="innerHTML"
+                                    class="text-blue-600 hover:text-blue-900 mr-3">
+                                Edit
+                            </button>
+                            <button hx-delete="/admin/keys/{{ key.id }}"
+                                    hx-target="#key-row-{{ key.id }}"
+                                    hx-swap="outerHTML swap:0.5s"
+                                    hx-confirm="Are you sure you want to delete this access key?"
+                                    class="text-red-600 hover:text-red-900">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    <!-- Edit Modal Container -->
+                    <tr id="edit-modal-{{ key.id }}"></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center text-gray-500">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+            </svg>
+            <p class="mt-2">No access keys found</p>
+            <p class="text-sm">Create your first access key above</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Toast Notification for HTMX -->
+<div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded shadow-lg transform translate-y-full transition-transform duration-300">
+    <span id="toast-message"></span>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('htmx:afterSwap', function(event) {
+    // Show toast for successful operations
+    if (event.detail.target.id === 'keys-list' || event.detail.target.id.startsWith('key-row-')) {
+        showToast('Operation completed');
+    }
+});
+
+document.addEventListener('htmx:responseError', function(event) {
+    showToast('An error occurred', 'error');
+});
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    
+    toastMessage.textContent = message;
+    toast.className = 'fixed bottom-4 right-4 px-4 py-2 rounded shadow-lg transform transition-transform duration-300 ' + 
+        (type === 'error' ? 'bg-red-600' : 'bg-gray-800');
+    
+    toast.classList.remove('translate-y-full');
+    
+    setTimeout(() => {
+        toast.classList.add('translate-y-full');
+    }, 3000);
+}
+</script>
+{% endblock %}
+{% endblock %}

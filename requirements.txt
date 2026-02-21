@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+pydantic-settings
+python-jose[cryptography]
+bcrypt
+httpx
+cryptography
+python-multipart
+jinja2
+alembic
+pytest
+pytest-asyncio
+aiosqlite
+email-validator
+lmdb>=1.4.1

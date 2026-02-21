@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: ao-llm-gateway
+    runtime: docker
+    repo: https://github.com/twilson63/ao-llm-gateway
+    branch: main
+    rootDir: .
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///data/app.db
+      - key: LMDB_PATH
+        value: ./data/ratelimit.db
+      - key: ADMIN_EMAIL
+        value: admin@example.com
+        sync: false
+      - key: ADMIN_PASSWORD
+        value: admin
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+    healthCheckPath: /health
+    disk:
+      name: data
+      mountPath: /app/data
+      sizeGB: 1

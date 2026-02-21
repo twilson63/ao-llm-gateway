@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=sqlite:///./data/gateway.db
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-default-32-byte-encryption-key!}
+      - HOST=0.0.0.0
+      - PORT=8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Optional: Nginx reverse proxy (uncomment to enable)
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - gateway
